@@ -12,7 +12,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 import firebaseConfig from './utils/FirebaseConfig';
-import { createStackNavigator, createAppContainer, createBottomTabNavigator } from 'react-navigation';
+import {
+  createStackNavigator,
+  withNavigation,
+  createAppContainer,
+  createBottomTabNavigator } from 'react-navigation';
 
 
 //import screens
@@ -26,6 +30,7 @@ import MyRecipe from './src/screens/MyRecipe'
 import SingleRecipe from './src/screens/SingleRecipe'
 import SearchRecipe from './src/screens/SearchRecipe'
 import ErrorPage from './src/screens/ErrorPage'
+import NetInfo from "@react-native-community/netinfo";
 
 class App extends Component {
 
@@ -36,9 +41,9 @@ class App extends Component {
     }
   }
   componentDidMount = async()=>{
-    setTimeout( () => {
-      this.setTimePassed();
-    },2000);
+        setTimeout( () => {
+          this.setTimePassed();
+        },5000);
   }
   setTimePassed = async()=> {
     this.setState({timePassed: true});
@@ -50,9 +55,9 @@ class App extends Component {
   }
 
   render(){
-    if(!this.state.timePassed){
-      return <Splash/>
-    }
+    // if(!this.state.timePassed){
+    //   return <Splash navigation={this.props.navigation}/>
+    // }
     return (
       <AppContainer/>
 
@@ -60,7 +65,8 @@ class App extends Component {
   }
 };
 
-const HomeTabNavigator =createBottomTabNavigator({
+const HomeTabNavigator =createBottomTabNavigator(
+  {
   Home: {
     screen: Home,
     navigationOptions:{
@@ -100,32 +106,77 @@ const HomeTabNavigator =createBottomTabNavigator({
   Profile: {
     screen: Profile,
     navigationOptions:{
-      tabBarLabel:'My Recipe',
+      tabBarLabel:'Profile',
       tabBarIcon:({tintColor})=>(
           <FontAwesome5 name="user-cog" color={tintColor} size={25}/>
       )
-    }
+    },
+    tabBarComponent: props => {
+      const {navigation, navigationState} = props
+      const jumpToIndex = index => {
+        const lastPosition = navigationState.index
+        const tab = navigationState.routes[index]
+        const tabRoute = tab.routeName
+        const firstTab = tab.routes[0].routeName
+
+        lastPosition !== index && navigation.dispatch(pushNavigation(tabRoute))
+        lastPosition === index && navigation.dispatch(resetNavigation(firstTab))
+      }
+      return <TabView.TabBarBottom {...props} jumpToIndex={jumpToIndex}/>
+    },
   },
 }, {
+  resetOnBlur:true,
+  tabBarOptions:{
+    style:{
+    backgroundColor:'#193549',
+    color:'white',
+    height:60,
+    borderTopLeftRadius:25,
+    borderTopRightRadius:25,
+    borderBottomRightRadius:25,
+    borderBottomLeftRadius:25,
+    marginHorizontal:5
+    },
+    activeBackgroundColor:'white',
+    activeTintColor:'black'
+
+  },
   initialRouteName: 'Home',
-  activeColor: '#f0edf6',
-  inactiveColor: '#3e2465',
-  barStyle: { backgroundColor: '#694fad' },
+  // activeColor: 'white',
+  // inactiveColor: '#3e2465',
+  // barStyle: { backgroundColor: 'white' },
 });
 
 const AppStackNavigator = createStackNavigator({
-  Login: Login,
-  Register: Register,
+  Splash: {
+    screen: Splash,
+    navigationOptions: {
+      header: null,
+    }
+  },
+  Login: {
+    screen:Login,
+    navigationOptions: {
+      header: null,
+    }
+  },
+  Register: {
+    screen:Register,
+    navigationOptions: {
+      header: null,
+    }
+  },
   Home:{ screen: HomeTabNavigator,
     navigationOptions: {
       header: null,
     }
   },
-  Splash: Splash,
+
   SingleRecipe: SingleRecipe,
-  ErrorPage: ErrorPage
+  ErrorPage: { screen: ErrorPage}
 },{
-  initialRouteName: 'Login',
+  initialRouteName: 'Splash',
 })
 const AppContainer = createAppContainer(AppStackNavigator);
 

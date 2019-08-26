@@ -7,8 +7,9 @@ import {
   TouchableHighlight
 } from 'react-native';
 import { SearchBar } from 'react-native-elements';
+import {Item, Input, Icon } from 'native-base';
 import { RecipeCard } from './AppStyles';
-
+import NetInfo from "@react-native-community/netinfo";
 import axios from 'axios';
 
 import MenuImage from './Common/MenuImage/MenuImage';
@@ -24,19 +25,45 @@ export default class SearchRecipe extends React.Component {
       data: []
     };
   }
+  componentDidMount = () =>{
+    NetInfo.fetch().then(state => {
+      if(state.isConnected == false){
+        ToastAndroid.show('Please Turn On Internet', ToastAndroid.SHORT);
+      }
+    });
+  }
 
 
 
   handleSearch = text => {
-    axios
-    .get(`https://recipe-backend12.herokuapp.com/api/recipe/getBysearch/${text}`)
-    .then(res=>{
-      this.setState({
-        data: res.data
-      });
-    })
-   };
+    NetInfo.fetch().then(state => {
+      if(state.isConnected == false){
+        ToastAndroid.show('Please Turn On Internet', ToastAndroid.SHORT);
+        // return false;
+      }else{
+        axios
+        .get(`https://recipe-backend12.herokuapp.com/api/recipe/getBysearch/${text}`)
+        .then(res=>{
+          this.setState({
+            data: res.data
+          })
+          setTimeout( () => {
+            this.setTimePassed();
 
+          },20000);
+        })
+      }
+    });
+
+   };
+   setTimePassed = async()=> {
+    NetInfo.fetch().then(state => {
+      if(state.isConnected == false){
+        ToastAndroid.show('Please Check internet connectivity', ToastAndroid.LONG);
+      }
+
+    });
+  }
 
   onPressRecipe = item => {
     this.props.navigation.navigate('SingleRecipe', { item });
@@ -56,34 +83,26 @@ export default class SearchRecipe extends React.Component {
   render() {
     return (
       <View>
-         <SearchBar
-          containerStyle={{
-            backgroundColor: 'transparent',
-            borderBottomColor: 'transparent',
-            borderTopColor: 'transparent',
-            flex: 1,
-            marginLeft:15,
-            marginRight:15
-          }}
-          inputContainerStyle={{
-            backgroundColor: '#EDEDED',
-          }}
-          inputStyle={{
-            backgroundColor: '#EDEDED',
-            borderRadius: 10,
-            color: 'black',
-          }}
-          searchIcond
-          clearIcon
-          //lightTheme
-          round
-          onChangeText={text => { this.setState({ text}),this.handleSearch(text)}}
-          //onClear={() => params.handleSearch('')}
-          placeholder="Search"
-          value={this.state.text}
-        />
+        <Item
+        style={{
+          justifyContent:'flex-start',
+          marginTop:15,
+          marginLeft:5,
+          marginRight:5,
+          borderRadius: 15,
+          backgroundColor:'#CFD8DC'
+        }}
+        >
+         <Icon name="ios-search" style={{marginLeft:10}} />
+            <Input
+             onChangeText={text => { this.setState({ text}),this.handleSearch(text)}}
+             placeholder="Search"
+             value={this.state.text}
+            />
+            </Item>
+
         <FlatList
-          style={{marginTop:15, marginBottom:15}}
+          style={{marginTop:5, marginBottom:15}}
           vertical
           showsVerticalScrollIndicator={false}
           numColumns={2}

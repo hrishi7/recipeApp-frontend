@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { StyleSheet,
+import { StyleSheet,RefreshControl,ToastAndroid,
   FlatList,
   Image,
   TouchableHighlight,
-  Text, View,
+  Text, View,ScrollView,
   ActivityIndicator
  } from 'react-native'
 
@@ -20,9 +20,28 @@ export default class MyRecipe extends Component {
       userEmail:'',
       uKey:'',
       recipes:[],
-      isLoaded:false
+      isLoaded:false,
+      refreshing: false,
+      timePassed:false
     })
   }
+  _onRefresh = () => {
+    this.setState({refreshing: true});
+    axios
+    .get(`https://recipe-backend12.herokuapp.com/api/recipe/getAll/${this.state.userEmail}`)
+    .then(res=>{
+      this.setState({ recipes: res.data, isLoaded:true,refreshing: false});
+    })
+    // axios
+    // .get('https://recipe-backend12.herokuapp.com/api/recipe/getAll')
+    // .then(res=>{
+    //   this.setState({ recipes: res.data, isLoaded:true,refreshing: false});
+    // })
+    setTimeout( () => {
+      this.setTimePassed();
+    },20000);
+  }
+
 
   componentDidMount = async ()=>{
     const value = await AsyncStorage.getItem('user');
@@ -30,12 +49,24 @@ export default class MyRecipe extends Component {
     if(userobj == null){
       this.props.navigation.navigate('Login');
     }
+    this.setState({ userEmail: userobj.user.email});
     axios
     .get(`https://recipe-backend12.herokuapp.com/api/recipe/getAll/${userobj.user.email}`)
     .then(res=>{
       this.setState({ recipes: res.data, isLoaded:true});
     })
+    setTimeout( () => {
+      this.setTimePassed();
 
+    },20000);
+  }
+
+  setTimePassed = async()=> {
+    if(!this.state.isLoaded){
+      this.setState({timePassed: true});
+      if(this.state.timePassed)ToastAndroid.show('Please Check internet connectivity', ToastAndroid.LONG);
+      this.setState({refreshing: false, isLoaded:false})
+    }
   }
 
   onPressRecipe = item => {
@@ -55,12 +86,19 @@ export default class MyRecipe extends Component {
 
   render() {
     return (
-      <View>
-        {this.state.recipes.length<=0?
+      <ScrollView
+      refreshControl={
+        <RefreshControl
+          refreshing={this.state.refreshing}
+          onRefresh={()=>this._onRefresh()}
+        />
+      }
+      >
+        {this.state.recipes.length<=0 && !this.state.timePassed && !this.state.isLoaded?
         <ActivityIndicator size="large" color="#0000ff" />
         :
         <FlatList
-        style={{marginTop:15, marginBottom:15}}
+        style={{marginTop:5, marginBottom:10}}
           vertical
           showsVerticalScrollIndicator={false}
           numColumns={2}
@@ -69,7 +107,7 @@ export default class MyRecipe extends Component {
           keyExtractor={item => `${item.recipeId}`}
         />
     }
-      </View>
+      </ScrollView>
     );
   }
 

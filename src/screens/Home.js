@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet,ScrollView,RefreshControl,
+import { StyleSheet,ScrollView,RefreshControl,ToastAndroid,
   FlatList,
   Image,
   TouchableHighlight,
@@ -22,6 +22,7 @@ export default class Home extends Component {
       recipes:[],
       isLoaded:false,
       refreshing: false,
+      timePassed:false
     })
   }
   _onRefresh = () => {
@@ -31,6 +32,9 @@ export default class Home extends Component {
     .then(res=>{
       this.setState({ recipes: res.data, isLoaded:true,refreshing: false});
     })
+    setTimeout( () => {
+      this.setTimePassed();
+    },20000);
   }
 
   componentDidMount = async ()=>{
@@ -44,8 +48,19 @@ export default class Home extends Component {
     .then(res=>{
       this.setState({ recipes: res.data, isLoaded:true});
     })
+    setTimeout( () => {
+      this.setTimePassed();
 
+    },20000);
   }
+  setTimePassed = async()=> {
+    if(!this.state.isLoaded){
+      this.setState({timePassed: true});
+      if(this.state.timePassed)ToastAndroid.show('Please Check internet connectivity', ToastAndroid.LONG);
+      this.setState({refreshing: false})
+    }
+  }
+
 
   onPressRecipe = item => {
     this.props.navigation.navigate('SingleRecipe', { item });
@@ -65,6 +80,7 @@ export default class Home extends Component {
   render() {
     return (
       <ScrollView
+      style={{backgroundColor:'#ECEFF1'}}
           refreshControl={
           <RefreshControl
             refreshing={this.state.refreshing}
@@ -72,11 +88,11 @@ export default class Home extends Component {
           />
         }
         >
-        {this.state.recipes.length<=0?
+        {this.state.recipes.length<=0 && !this.state.timePassed?
         <ActivityIndicator size="large" color="#0000ff" />
         :
         <FlatList
-        style={{marginTop:15, marginBottom:15}}
+        style={{marginTop:5, marginBottom:10,}}
           vertical
           showsVerticalScrollIndicator={false}
           numColumns={2}

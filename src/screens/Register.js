@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View,StyleSheet, ToastAndroid } from 'react-native'
+import { View,StyleSheet, ToastAndroid,ImageBackground,TouchableOpacity } from 'react-native'
 
 //native base
 import { Container, Header, Content, Form, Item, Input, Label,Button,Text } from 'native-base';
@@ -51,9 +51,22 @@ export default class Register extends Component {
 
   render() {
     return (
+
       <View style={styles.container}>
-        <Text style={{fontSize:30, fontWeight:'500', alignSelf:'center', marginVertical:10, color:'blue'}}> SignUp </Text>
+      <View
+      style={{
+        backgroundColor:'#dee8ff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        elevation: 8,
+        paddingBottom:20,
+        borderRadius:28,
+      }}
+      >
         <Form>
+          <Text style={{fontSize:30, fontWeight:'500', alignSelf:'center', marginVertical:10, color:'blue'}}> SignUp </Text>
             <Item floatingLabel>
               <Label>Username</Label>
               <Input
@@ -70,22 +83,44 @@ export default class Register extends Component {
             </Item>
           </Form>
 
-          <Button full rounded success style={{ height:45, marginVertical:15}}
-          onPress={()=> this.handleRegister()}
-          >
-            <Text>SignUp</Text>
-          </Button>
-          <Button full rounded danger style={{ height:45, marginVertical:15}}
-          onPress={()=> this.handleClear()}
-          >
-            <Text>Clear</Text>
-          </Button>
-          <Button full rounded dark style={{ height:45, marginVertical:15}}
-          onPress={()=> this.props.navigation.navigate('Login')}
-          >
-            <Text>Login</Text>
-          </Button>
+          <TouchableOpacity
+          style={{width:200, height:60,
+            backgroundColor:'#ffffff',
+          borderColor:'orange',borderWidth:4,
+          opacity:0.6,
+          borderRadius:30,
+          justifyContent:'center',
+          alignSelf:'center', marginVertical:10}}
+          onPress={()=>this.handleRegister()}>
+              <Text style={{textAlign:'center', color:'black', fontSize:19, fontWeight:'bold'}}>SignUp</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+          style={{width:200, height:60,
+            backgroundColor:'#ffffff',
+          borderColor:'orange',borderWidth:4,
+          opacity:0.6,
+          borderRadius:30,
+          justifyContent:'center',
+          alignSelf:'center', marginVertical:10}}
+          onPress={()=>this.handleClear()}>
+              <Text style={{textAlign:'center', color:'black', fontSize:19, fontWeight:'bold'}}>Clear</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+          style={{width:200, height:60,
+            backgroundColor:'#ffffff',
+          borderColor:'orange',borderWidth:4,
+          opacity:0.6,
+          borderRadius:30,
+          justifyContent:'center',
+          alignSelf:'center', marginVertical:10}}
+          onPress={()=> this.props.navigation.navigate('Login')}>
+              <Text style={{textAlign:'center', color:'black', fontSize:19, fontWeight:'bold'}}>Login</Text>
+          </TouchableOpacity>
       </View>
+      </View>
+
     )
   }
 }
@@ -94,6 +129,7 @@ const styles = StyleSheet.create({
     container:{
         flex:1,
         margin:20,
-        justifyContent:"center"
+        justifyContent:"center",
+
     }
 });
